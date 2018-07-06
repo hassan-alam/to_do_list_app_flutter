@@ -1,5 +1,11 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
+//TODO Set up path as config variable
+final _toDoListPath = 'v3toDoListItems.json';
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
@@ -21,8 +27,8 @@ class ToDoList extends StatefulWidget {
 
 class _ToDoListState extends State<ToDoList> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
-  //TODO add persistence to _toDoListItems
-  final _toDoListItems = List<ToDoListItem>();
+  final _toDoListItems = new List<ToDoListItem>();
+  final future = getToDoListItems();
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +44,7 @@ class _ToDoListState extends State<ToDoList> {
         padding: const EdgeInsets.all(16.0),
         itemBuilder: (context, i) {
           print("building listing...");
-          while (i < _toDoListItems.length || i == 0) {
+          while (i < _toDoListItems.length) {
             return _buildRow(_toDoListItems[i]);
           }
         });
@@ -57,6 +63,7 @@ class _ToDoListState extends State<ToDoList> {
             setState(() {
               _item.isFavorite = !_item.isFavorite;
             });
+            replaceToDoListItems(_toDoListItems);
           }), //TODO: Add another trailing icon for completing the icon
     );
   }
@@ -75,9 +82,25 @@ class _ToDoListState extends State<ToDoList> {
   }
 
   void addToDoListItem(String value) {
+    ToDoListItem _item = new ToDoListItem(value, false, false);
     setState(() {
-      _toDoListItems.add(new ToDoListItem(value, false, false));
+      _toDoListItems.add(_item);
     });
+    replaceToDoListItems(_toDoListItems);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    future.then((value) => setState(() {
+          _toDoListItems.addAll(value);
+        }));
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+    _toDoListItems.clear();
   }
 }
 
@@ -87,4 +110,49 @@ class ToDoListItem {
   bool isFavorite;
 
   ToDoListItem(this.value, this.isCompleted, this.isFavorite);
+
+  ToDoListItem.fromJson(Map<String, dynamic> json)
+      : value = json['value'],
+        isCompleted = json['isCompleted'],
+        isFavorite = json['isFavorite'];
+
+  Map<String, dynamic> toJson() =>
+      {'value': value, 'isCompleted': isCompleted, 'isFavorite': isFavorite};
+
+  static List<ToDoListItem> fromJsonList(List<dynamic> map) {
+    final _list = new List<ToDoListItem>();
+    map.forEach((f) => _list.add(ToDoListItem.fromJson(f)));
+    return _list;
+  }
+}
+
+Future<String> get _localPath async {
+  final directory = await getApplicationDocumentsDirectory();
+
+  return directory.path;
+}
+
+Future<File> get _localFile async {
+  final path = await _localPath;
+  return new File('$path/$_toDoListPath');
+}
+
+Future<File> replaceToDoListItems(List<ToDoListItem> _list) async {
+  final file = await _localFile;
+  final stringJsonToWrite = json.encode(_list);
+  return file.writeAsString(
+    stringJsonToWrite,
+    mode: FileMode.writeOnly,
+  );
+}
+
+Future<List<ToDoListItem>> getToDoListItems() async {
+  print("Retrieving from local file system");
+  final file = await _localFile;
+  if (await file.exists()) {
+    final jsonRead = await file.readAsString();
+    if (jsonRead.length != 0)
+      return ToDoListItem.fromJsonList(json.decode(jsonRead));
+  }
+  return new List<ToDoListItem>();
 }
