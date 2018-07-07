@@ -60,24 +60,45 @@ class _ToDoListState extends State<ToDoList> {
 
         replaceToDoListItems(_toDoListItems);
 
-        Scaffold
-            .of(context)
-            .showSnackBar(SnackBar(content: Text("$_item.value")));
+        Scaffold.of(context).showSnackBar(SnackBar(
+            content: Text("$_item.value"))); //TODO Fix error with this.
       },
       child: ListTile(
-        title: Text(_item.value, style: _biggerFont),
-        trailing: new IconButton(
-            icon: Icon(
-              _item.isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: _item.isFavorite ? Colors.red : null,
-            ),
-            tooltip: "Favorite your item.",
-            onPressed: () {
-              setState(() {
-                _item.isFavorite = !_item.isFavorite;
-              });
-              replaceToDoListItems(_toDoListItems);
-            }), //TODO: Add another trailing icon for completing the icon
+        title: Container(
+            child: Row(children: [
+          Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                Container(child: Text(_item.value, style: _biggerFont))
+              ])),
+          new IconButton(
+              icon: Icon(
+                _item.isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: _item.isFavorite ? Colors.red : null,
+              ),
+              tooltip: "Favorite your item.",
+              onPressed: () {
+                setState(() {
+                  _item.isFavorite = !_item.isFavorite;
+                });
+                replaceToDoListItems(_toDoListItems);
+              }),
+          new IconButton(
+              icon: Icon(
+                _item.isCompleted
+                    ? Icons.check_box
+                    : Icons.check_box_outline_blank,
+                color: _item.isCompleted ? Colors.red : null,
+              ),
+              tooltip: "Set your item to complete.",
+              onPressed: () {
+                setState(() {
+                  _item.isCompleted = !_item.isCompleted;
+                });
+                replaceToDoListItems(_toDoListItems);
+              })
+        ])),
       ),
     );
   }

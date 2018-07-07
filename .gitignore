@@ -7,3 +7,7 @@
 build/
 
 .flutter-plugins
+
+# 7/7/2018
+.idea/
+.vscode/
