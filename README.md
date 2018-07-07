@@ -12,3 +12,5 @@ For help getting started with Flutter, view the online
 - Adding ability to edit to do list items created, either through long-press or some other gesture
 
 - Fix name/create custom icon
+
+- Allow for users to easily drag and move around to do list items.

@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 
 //TODO Set up path as config variable
 final _toDoListPath = 'v3toDoListItems.json';
+
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
@@ -29,12 +30,16 @@ class _ToDoListState extends State<ToDoList> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
   final _toDoListItems = new List<ToDoListItem>();
   final future = getToDoListItems();
+  final key = new GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: key,
       appBar: AppBar(title: Text('To Do List Items')),
-      body: _buildList(),
+      body: new Builder(builder: (BuildContext context) {
+        return _buildList();
+      }),
       bottomNavigationBar: _addToDoListItemBar(),
     );
   }
@@ -51,7 +56,7 @@ class _ToDoListState extends State<ToDoList> {
 
   Widget _buildRow(ToDoListItem _item, int index) {
     return Dismissible(
-      key: Key(_item.toJson().toString()),
+      key: Key(_item.toJson().toString() + index.toString()),
       background: Container(color: Colors.red),
       onDismissed: (direction) {
         setState(() {
@@ -60,8 +65,17 @@ class _ToDoListState extends State<ToDoList> {
 
         replaceToDoListItems(_toDoListItems);
 
-        Scaffold.of(context).showSnackBar(SnackBar(
-            content: Text("$_item.value"))); //TODO Fix error with this.
+        key.currentState.showSnackBar(SnackBar(
+            content: Text("Item ${_item.value} removed."),
+            action: SnackBarAction(
+              label: 'Undo',
+              onPressed: () {
+                setState(() {
+                  _toDoListItems.insert(index, _item);
+                  replaceToDoListItems(_toDoListItems);
+                });
+              },
+            )));
       },
       child: ListTile(
         title: Container(
