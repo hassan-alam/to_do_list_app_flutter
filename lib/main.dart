@@ -42,29 +42,43 @@ class _ToDoListState extends State<ToDoList> {
   Widget _buildList() {
     return ListView.builder(
         padding: const EdgeInsets.all(16.0),
+        itemCount: _toDoListItems.length,
         itemBuilder: (context, i) {
           print("building listing...");
-          while (i < _toDoListItems.length) {
-            return _buildRow(_toDoListItems[i]);
-          }
+          return _buildRow(_toDoListItems[i], i);
         });
   }
 
-  Widget _buildRow(ToDoListItem _item) {
-    return ListTile(
-      title: Text(_item.value, style: _biggerFont),
-      trailing: new IconButton(
-          icon: Icon(
-            _item.isFavorite ? Icons.favorite : Icons.favorite_border,
-            color: _item.isFavorite ? Colors.red : null,
-          ),
-          tooltip: "Favorite your item.",
-          onPressed: () {
-            setState(() {
-              _item.isFavorite = !_item.isFavorite;
-            });
-            replaceToDoListItems(_toDoListItems);
-          }), //TODO: Add another trailing icon for completing the icon
+  Widget _buildRow(ToDoListItem _item, int index) {
+    return Dismissible(
+      key: Key(_item.toJson().toString()),
+      background: Container(color: Colors.red),
+      onDismissed: (direction) {
+        setState(() {
+          _toDoListItems.removeAt(index);
+        });
+
+        replaceToDoListItems(_toDoListItems);
+
+        Scaffold
+            .of(context)
+            .showSnackBar(SnackBar(content: Text("$_item.value")));
+      },
+      child: ListTile(
+        title: Text(_item.value, style: _biggerFont),
+        trailing: new IconButton(
+            icon: Icon(
+              _item.isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: _item.isFavorite ? Colors.red : null,
+            ),
+            tooltip: "Favorite your item.",
+            onPressed: () {
+              setState(() {
+                _item.isFavorite = !_item.isFavorite;
+              });
+              replaceToDoListItems(_toDoListItems);
+            }), //TODO: Add another trailing icon for completing the icon
+      ),
     );
   }
 
