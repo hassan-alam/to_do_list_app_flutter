@@ -2,15 +2,48 @@
 
 A simple to do list application created using Flutter.
 
+## Motivation
+
+To learn more about Flutter by writing a simple app on my own.
+
+## Tech/Framework
+
+Uses flutter/dart.
+
+## Features
+
+A simple to do list application with a default dark theme, that allows for users to manage to do list items.
+
+Features:
+
+- Add and remove to do list items
+- Favorite and/or set items to completed
+- Default dark theme
+
+## Installation
+
+- Follow the guide [below](#Flutter Documentation) to set up a flutter development environment.
+
 ## Flutter Documentation
 
 For help getting started with Flutter, view the online
 [documentation](https://flutter.io/).
 
-### Future features/Avenues to Explore
+### Future features/Avenues to Explore (In priority Order)
 
-- Adding ability to edit to do list items created, either through long-press or some other gesture
+- Focus change on all keyboard actions
+
+- ~~Adding ability to edit to do list items created, either through long-press or some other gesture~~
 
 - Fix name/create custom icon
 
-- Allow for users to easily drag and move around to do list items.
+- Allow for users to easily drag and move around to do list items
+
+- Customization of theme
+
+- ~~Dark Theme (default)~~/Light Theme
+
+- Toolbar options to:
+
+  - Customized Themes
+  - Remove all to do list items

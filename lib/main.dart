@@ -14,8 +14,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Flutter Demo',
-      theme: new ThemeData(),
+      title: 'Simple To Do List',
+      theme: ThemeData.dark(),
       home: new ToDoList(),
     );
   }
@@ -27,7 +27,14 @@ class ToDoList extends StatefulWidget {
 }
 
 class _ToDoListState extends State<ToDoList> {
-  final _biggerFont = const TextStyle(fontSize: 18.0);
+  final _toDoListTextStyle =
+      const TextStyle(fontSize: 18.0, color: Colors.teal);
+  final _toDoListTextStyleStriked = const TextStyle(
+      fontSize: 18.0,
+      color: Colors.blueGrey,
+      decoration: TextDecoration.lineThrough);
+  final _addingToDoListItemController = new TextEditingController();
+  final _editingToDoListItemController = new TextEditingController();
   final _toDoListItems = new List<ToDoListItem>();
   final future = getToDoListItems();
   final key = new GlobalKey<ScaffoldState>();
@@ -35,13 +42,28 @@ class _ToDoListState extends State<ToDoList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: key,
-      appBar: AppBar(title: Text('To Do List Items')),
-      body: new Builder(builder: (BuildContext context) {
-        return _buildList();
-      }),
-      bottomNavigationBar: _addToDoListItemBar(),
-    );
+        key: key,
+        appBar: AppBar(
+          title: Text('To Do List Items'),
+          actions: <Widget>[
+            new IconButton(
+              icon: new Icon(Icons.add),
+              tooltip: "Add a to do list item",
+              onPressed: _showNewToDoListDialog,
+            ),
+            new PopupMenuButton<Choices>(
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<Choices>>[
+                    const PopupMenuItem<Choices>(
+                      value: Choices.removeAll,
+                      child: const Text("Remove all items."),
+                    )
+                  ],
+            ),
+          ],
+        ),
+        body: new Builder(builder: (BuildContext context) {
+          return _buildList();
+        }));
   }
 
   Widget _buildList() {
@@ -56,13 +78,19 @@ class _ToDoListState extends State<ToDoList> {
 
   Widget _buildRow(ToDoListItem _item, int index) {
     return Dismissible(
+      direction: DismissDirection.horizontal,
       key: Key(_item.toJson().toString() + index.toString()),
-      background: Container(color: Colors.red),
+      background: Container(
+        color: Colors.red,
+        child: Icon(Icons.delete),
+        alignment: Alignment.centerRight,
+      ),
       onDismissed: (direction) {
-        setState(() {
-          _toDoListItems.removeAt(index);
-        });
-
+        if (_toDoListItems[index] == _item) {
+          setState(() {
+            _toDoListItems.removeAt(index);
+          });
+        }
         replaceToDoListItems(_toDoListItems);
 
         key.currentState.showSnackBar(SnackBar(
@@ -84,12 +112,16 @@ class _ToDoListState extends State<ToDoList> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                Container(child: Text(_item.value, style: _biggerFont))
+                Container(
+                    child: Text(_item.value,
+                        style: _item.isCompleted
+                            ? _toDoListTextStyleStriked
+                            : _toDoListTextStyle))
               ])),
           new IconButton(
               icon: Icon(
                 _item.isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: _item.isFavorite ? Colors.red : null,
+                color: _item.isFavorite ? Colors.redAccent : null,
               ),
               tooltip: "Favorite your item.",
               onPressed: () {
@@ -103,7 +135,7 @@ class _ToDoListState extends State<ToDoList> {
                 _item.isCompleted
                     ? Icons.check_box
                     : Icons.check_box_outline_blank,
-                color: _item.isCompleted ? Colors.red : null,
+                color: _item.isCompleted ? Colors.teal : null,
               ),
               tooltip: "Set your item to complete.",
               onPressed: () {
@@ -113,21 +145,45 @@ class _ToDoListState extends State<ToDoList> {
                 replaceToDoListItems(_toDoListItems);
               })
         ])),
+        onLongPress: () {
+          _showEditToDoListDialog(index);
+        },
       ),
     );
   }
 
-  Widget _addToDoListItemBar() {
+  Widget _addToDoListItemField() {
+    _addingToDoListItemController.clear();
     return TextField(
+      controller: _addingToDoListItemController,
       decoration: InputDecoration(
           border: OutlineInputBorder(),
-          helperText: "Insert a new to do list item.",
-          labelText: "New To Do List Item"),
+          helperText: "Insert a new to do list item."),
       onSubmitted: (submittedValue) {
         print("Adding todolist item: " + submittedValue);
         this.addToDoListItem(submittedValue);
+        _addingToDoListItemController.text = "";
       },
     );
+  }
+
+  Widget _editToDoListItemField(int index) {
+    ToDoListItem _item = _toDoListItems[index];
+    _editingToDoListItemController.text = _item.value;
+
+    return TextField(
+        controller: _editingToDoListItemController,
+        decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            helperText: "Edit the to do list item."),
+        onSubmitted: (submittedValue) {
+          print("Editing todolist at index: $index item: $submittedValue");
+          setState(() {
+            _item.value = submittedValue;
+          });
+          replaceToDoListItems(_toDoListItems);
+          Navigator.pop(context);
+        });
   }
 
   void addToDoListItem(String value) {
@@ -150,6 +206,31 @@ class _ToDoListState extends State<ToDoList> {
   void deactivate() {
     super.deactivate();
     _toDoListItems.clear();
+  }
+
+  void _showNewToDoListDialog() {
+    //TODO Fix issue with deprecated use of child (not sure how).
+    showDialog(
+        context: context, child: new Dialog(child: _addToDoListItemField()));
+  }
+
+  void _showEditToDoListDialog(int index) {
+    showDialog(
+        context: context,
+        child: new Dialog(child: _editToDoListItemField(index)));
+  }
+
+  void _showAreYouSureRemoveAllDialog() {
+    showDialog(context: context, child: new Dialog(child: null));
+  }
+
+  handleDropDownChoiceSelection(Choices _choice) {
+    switch (_choice) {
+      case Choices.removeAll:
+        //Are you sure dialog?
+
+        break;
+    }
   }
 }
 
@@ -204,4 +285,9 @@ Future<List<ToDoListItem>> getToDoListItems() async {
       return ToDoListItem.fromJsonList(json.decode(jsonRead));
   }
   return new List<ToDoListItem>();
+}
+
+enum Choices {
+  removeAll,
+  settingsPage,
 }
