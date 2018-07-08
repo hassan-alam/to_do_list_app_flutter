@@ -52,6 +52,7 @@ class _ToDoListState extends State<ToDoList> {
               onPressed: _showNewToDoListDialog,
             ),
             new PopupMenuButton<Choices>(
+              onSelected: (selected) => handleDropDownChoiceSelection(selected),
               itemBuilder: (BuildContext context) => <PopupMenuEntry<Choices>>[
                     const PopupMenuItem<Choices>(
                       value: Choices.removeAll,
@@ -205,7 +206,6 @@ class _ToDoListState extends State<ToDoList> {
   @override
   void deactivate() {
     super.deactivate();
-    _toDoListItems.clear();
   }
 
   void _showNewToDoListDialog() {
@@ -221,14 +221,40 @@ class _ToDoListState extends State<ToDoList> {
   }
 
   void _showAreYouSureRemoveAllDialog() {
-    showDialog(context: context, child: new Dialog(child: null));
+    showDialog(
+        context: context,
+        child: new AlertDialog(
+            title: new Text('Confirm'),
+            content: new Text(
+                'Are you sure you would like to remove all of your to do list items? They can not be recovered afterwards.'),
+            actions: <Widget>[
+              new FlatButton(
+                  child: Text('Yes'),
+                  onPressed: () {
+                    setState(() {
+                      _toDoListItems.clear();
+                    });
+
+                    replaceToDoListItems(_toDoListItems);
+                    Navigator.pop(context);
+                  }),
+              new FlatButton(
+                child: Text('Cancel'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ]));
   }
 
   handleDropDownChoiceSelection(Choices _choice) {
     switch (_choice) {
       case Choices.removeAll:
         //Are you sure dialog?
+        _showAreYouSureRemoveAllDialog();
+        break;
 
+      case Choices.settingsPage:
         break;
     }
   }
