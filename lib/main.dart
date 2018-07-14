@@ -69,7 +69,7 @@ class _ToDoListState extends State<ToDoList> {
 
   Widget _buildList() {
     return ListView.builder(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
         itemCount: _toDoListItems.length,
         itemBuilder: (context, i) {
           print("building listing...");
