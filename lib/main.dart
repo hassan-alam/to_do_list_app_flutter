@@ -157,6 +157,7 @@ class _ToDoListState extends State<ToDoList> {
     _addingToDoListItemController.clear();
     return TextField(
       controller: _addingToDoListItemController,
+      autofocus: true,
       decoration: InputDecoration(
           border: OutlineInputBorder(),
           helperText: "Insert a new to do list item."),
@@ -174,6 +175,7 @@ class _ToDoListState extends State<ToDoList> {
 
     return TextField(
         controller: _editingToDoListItemController,
+        autofocus: true,
         decoration: InputDecoration(
             border: OutlineInputBorder(),
             helperText: "Edit the to do list item."),

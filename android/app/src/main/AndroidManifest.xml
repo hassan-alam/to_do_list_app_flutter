@@ -14,7 +14,7 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="to_do_list_app_flutter"
+        android:label="Simple To Do List"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

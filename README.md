@@ -31,7 +31,7 @@ For help getting started with Flutter, view the online
 
 ### Future features/Avenues to Explore (In priority Order)
 
-- Focus change on all keyboard actions
+- ~~Focus change on all keyboard actions~~
 
 - ~~Adding ability to edit to do list items created, either through long-press or some other gesture~~
 
@@ -46,4 +46,4 @@ For help getting started with Flutter, view the online
 - Toolbar options to:
 
   - Customized Themes
-  - Remove all to do list items
+  - ~~Remove all to do list items~~
