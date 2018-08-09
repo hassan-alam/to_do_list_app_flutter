@@ -9,26 +9,40 @@ final _toDoListPath = 'v3toDoListItems.json';
 
 void main() => runApp(new MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   // This widget is the root of your application.
+  @override
+  State<MyApp> createState() => new MyAppState();
+}
+
+class MyAppState extends State<MyApp> {
+  ThemeData _themeData = ThemeData.dark();
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
       title: 'Simple To Do List',
-      theme: ThemeData.dark(),
-      home: new ToDoList(),
+      theme: _themeData,
+      home: new ToDoList(
+        themeDataCallback: (val) => setState(() => _themeData = val),
+      ),
     );
   }
 }
 
+typedef void ThemeDataCallback(ThemeData val);
+
 class ToDoList extends StatefulWidget {
+  final ThemeDataCallback themeDataCallback;
+
+  ToDoList({this.themeDataCallback});
+
   @override
   createState() => _ToDoListState();
 }
 
 class _ToDoListState extends State<ToDoList> {
-  final _toDoListTextStyle =
-      const TextStyle(fontSize: 18.0, color: Colors.teal);
+  final _toDoListTextStyle = const TextStyle(fontSize: 18.0);
   final _toDoListTextStyleStriked = const TextStyle(
       fontSize: 18.0,
       color: Colors.blueGrey,
@@ -56,7 +70,11 @@ class _ToDoListState extends State<ToDoList> {
               itemBuilder: (BuildContext context) => <PopupMenuEntry<Choices>>[
                     const PopupMenuItem<Choices>(
                       value: Choices.removeAll,
-                      child: const Text("Remove all items."),
+                      child: const Text("Remove all items"),
+                    ),
+                    const PopupMenuItem<Choices>(
+                      value: Choices.changeThemeData,
+                      child: const Text("Change theme"),
                     )
                   ],
             ),
@@ -249,6 +267,23 @@ class _ToDoListState extends State<ToDoList> {
             ]));
   }
 
+  void _chooseThemeDataSelection() {
+    showDialog(
+        context: context,
+        child: new SimpleDialog(
+            title: const Text('Select your theme:'),
+            children: ThemeDataOptions
+                .getPossibleOptions()
+                .map((item) => new SimpleDialogOption(
+                      onPressed: () {
+                        widget.themeDataCallback(item.themeData);
+                        Navigator.pop(context);
+                      },
+                      child: Text(item.title),
+                    ))
+                .toList()));
+  }
+
   handleDropDownChoiceSelection(Choices _choice) {
     switch (_choice) {
       case Choices.removeAll:
@@ -257,6 +292,13 @@ class _ToDoListState extends State<ToDoList> {
         break;
 
       case Choices.settingsPage:
+        break;
+
+      case Choices.changeThemeData:
+        _chooseThemeDataSelection();
+        break;
+
+      case Choices.information:
         break;
     }
   }
@@ -315,7 +357,22 @@ Future<List<ToDoListItem>> getToDoListItems() async {
   return new List<ToDoListItem>();
 }
 
-enum Choices {
-  removeAll,
-  settingsPage,
+enum Choices { removeAll, settingsPage, changeThemeData, information }
+
+class ThemeDataOptions {
+  final ThemeData themeData;
+  final String title;
+
+  ThemeDataOptions(this.themeData, this.title);
+
+  static List<ThemeDataOptions> getPossibleOptions() {
+    return themeDataOptions;
+  }
+
+  static final ThemeDataOptions DARK =
+      new ThemeDataOptions(ThemeData.dark(), "Dark");
+  static final ThemeDataOptions LIGHT =
+      new ThemeDataOptions(ThemeData.light(), "Light");
+  static final List<ThemeDataOptions> themeDataOptions =
+      List.unmodifiable([DARK, LIGHT]);
 }
