@@ -41,11 +41,12 @@ For help getting started with Flutter, view the online
 
 - Allow for users to easily drag and move around to do list items
 
-- Customization of theme (Picking either dark mode or light mode)
+- ~~Customization of theme (Picking either dark mode or light mode)~~
 
-- ~~Dark Theme (default)~~/Light Theme
+- ~~Dark Theme (default)/Light Theme~~
 
 - Toolbar options to:
 
-  - Customized Themes
+  - ~~Customized Themes~~
   - ~~Remove all to do list items~~
+  - Show information (app information, using AboutDialog)
