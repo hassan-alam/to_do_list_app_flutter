@@ -246,7 +246,7 @@ class _ToDoListState extends State<ToDoList> {
         child: new AlertDialog(
             title: new Text('Confirm'),
             content: new Text(
-                'Are you sure you would like to remove all of your to do list items? They can not be recovered afterwards.'),
+                'Are you sure you would like to remove all of your to do list items?\nThey can not be recovered afterwards.'),
             actions: <Widget>[
               new FlatButton(
                   child: Text('Yes'),
